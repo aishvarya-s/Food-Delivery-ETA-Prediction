@@ -30,6 +30,7 @@ def prepare_data(df):
         'Restaurant_longitude',
         'Delivery_location_latitude',
         'Delivery_location_longitude',
+        'Type_of_vehicle',
         'delay',
         'expected_time'
         
