@@ -27,6 +27,8 @@ def clean_data(df):
     df['Time_taken_min'] = df['Time_taken_min'].str.extract(r'(\d+)')
     df['Time_taken_min'] = pd.to_numeric(df['Time_taken_min'], errors='coerce')
 
+    df = df.dropna(subset=['Time_taken_min'])
+
     return df
 
 
@@ -101,7 +103,7 @@ def feature_engineering(df):
     )
 
     # convert order time
-    df['Time_Orderd'] = pd.to_datetime(df['Time_Orderd'], format='%H:%M', errors='coerce')
+    df['Time_Orderd'] = pd.to_datetime(df['Time_Orderd'],format='%H:%M',errors='coerce')
 
     # extract hour
     df['order_hour'] = df['Time_Orderd'].dt.hour
@@ -111,6 +113,12 @@ def feature_engineering(df):
         lambda x: 1 if x in [12, 13, 19, 20, 21] else 0
     )
 
+    # expected delivery time (assumption: 3 min per km)
+    df['expected_time'] = df['distance'] * 3
+
+    # delay = actual - expected
+    df['delay'] = df['Time_taken_min'] - df['expected_time']
+    
     return df
 
 
