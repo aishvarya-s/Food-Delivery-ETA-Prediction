@@ -4,7 +4,7 @@ from preprocessing.preprocess import (
 )
 
 from models.classification_model import run_classification
-
+from models.regression_model import run_regression
 
 def main():
     path = "data/raw/Zomato Dataset.csv"
@@ -27,6 +27,8 @@ def main():
     print("Before Classification:")
     run_classification(df)
     print("Classification model trained and evaluated successfully.")
+
+    trained_models, results = run_regression(df)
 
 if __name__ == "__main__":
     main()
