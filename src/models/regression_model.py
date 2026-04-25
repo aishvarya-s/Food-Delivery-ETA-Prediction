@@ -150,7 +150,7 @@ def run_regression(df):
     print("\nTest Data - Sample Predictions (first 10 rows):")
     print(prediction_df.head(10))
     print(f"\nTotal predictions made: {len(prediction_df)}")
-
+   
     # step 7 - show train predictions (to verify overfitting visually)
     '''y_pred_train = best_model.predict(X_train)
 

@@ -5,10 +5,10 @@ from preprocessing.preprocess import (
 
 from models.classification_model import run_classification
 from models.regression_model import run_regression
+from clustering.clustering import main as run_clustering
 
 def main():
     path = "data/raw/Zomato Dataset.csv"
-
     df = load_data(path)
     print("Data loaded successfully.")
     df = clean_data(df)
@@ -29,6 +29,8 @@ def main():
     print("Classification model trained and evaluated successfully.")
 
     trained_models, results = run_regression(df)
-
+    print("Running clustering analysis...")
+    run_clustering(df)
+    print("Clustering completed.")
 if __name__ == "__main__":
     main()
