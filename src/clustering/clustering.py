@@ -43,63 +43,6 @@ def graph1(df, ax):
     ax.set_ylabel("Time Taken (min)")
 
     ax.legend()
-def graph2(df, ax):
-    import numpy as np
-    from sklearn.preprocessing import StandardScaler
-    from sklearn.cluster import DBSCAN
-
-    df = df.copy()
-
-    # 🔹 Encode traffic levels
-    traffic_map = {'Low':1, 'Medium':2, 'High':3, 'Jam':4}
-    df['traffic'] = df['Road_traffic_density'].map(traffic_map)
-
-    # remove missing
-    df = df.dropna(subset=['distance_euclidean', 'traffic'])
-
-    # 🔹 Prepare data
-    X = df[['distance_euclidean', 'traffic']]
-    X_scaled = StandardScaler().fit_transform(X)
-
-    # 🔹 DBSCAN
-    labels = DBSCAN(eps=0.4, min_samples=8).fit_predict(X_scaled)
-
-    clusters = labels != -1
-    noise = labels == -1
-
-    # 🔹 Add jitter (for visibility)
-    jitter = df['traffic'] + np.random.uniform(-0.1, 0.1, len(df))
-
-    # ✅ plot clusters
-    ax.scatter(
-        df['distance_euclidean'][clusters],
-        jitter[clusters],
-        c=labels[clusters],
-        cmap='viridis',
-        s=15
-    )
-
-    # ✅ plot noise
-    ax.scatter(
-        df['distance_euclidean'][noise],
-        jitter[noise],
-        c='red',
-        s=20,
-        label='Noise'
-    )
-
-    # 🔹 axis labels
-    ax.set_yticks([1,2,3,4])
-    ax.set_yticklabels(['Low','Medium','High','Jam'])
-
-    ax.set_title("Distance vs Traffic")
-    ax.set_xlabel("Euclidean Distance")
-    ax.set_ylabel("Traffic")
-
-    # 🔥 important fix (same as graph1)
-    ax.set_xlim(0, df['distance_euclidean'].quantile(0.99))
-
-    ax.legend()
 
 def graph3(df, ax):
     import numpy as np
@@ -147,6 +90,7 @@ def graph3(df, ax):
     ax.set_ylabel("Time Taken (min)")
 
     ax.legend()
+    
 def graph6(df, ax):
     import numpy as np
     from sklearn.preprocessing import StandardScaler
@@ -206,6 +150,7 @@ def graph6(df, ax):
     ax.set_ylabel("Time Taken (min)")
 
     ax.legend()
+    
 def graph4(df, ax):
     from sklearn.preprocessing import StandardScaler
     from sklearn.cluster import KMeans
@@ -255,6 +200,7 @@ def graph4(df, ax):
     ax.set_yticks([0, 1, 2, 3])
 
     ax.legend()
+    
 def graph5(df, ax):
     import numpy as np
     from sklearn.preprocessing import StandardScaler
@@ -297,73 +243,7 @@ def graph5(df, ax):
 
     # ✅ colorbar (important)
     plt.colorbar(scatter, ax=ax, label='Cluster')
-def graph6(df, ax):
-    import numpy as np
-    from sklearn.preprocessing import StandardScaler
-    from sklearn.cluster import DBSCAN
-
-    df = df.copy()
-
-    # 🔹 encode weather (same order as labels)
-    weather_map = {
-        'Sunny': 1,
-        'Cloudy': 2,
-        'Fog': 3,
-        'Stormy': 4,
-        'Sandstorms': 5,
-        'Windy': 6
-    }
-
-    df['weather'] = df['Weather_conditions'].map(weather_map)
-
-    # remove missing
-    df = df.dropna(subset=['weather', 'Time_taken (min)'])
-
-    # 🔹 prepare data
-    X = df[['weather', 'Time_taken (min)']]
-    X_scaled = StandardScaler().fit_transform(X)
-
-    # 🔹 DBSCAN
-    labels = DBSCAN(eps=0.4, min_samples=8).fit_predict(X_scaled)
-
-    clusters = labels != -1
-    noise = labels == -1
-
-    # 🔹 jitter (for visibility)
-    jitter = df['weather'] + np.random.uniform(-0.1, 0.1, len(df))
-
-    # ✅ plot clusters
-    ax.scatter(
-        jitter[clusters],
-        df['Time_taken (min)'][clusters],
-        c=labels[clusters],
-        cmap='viridis',
-        s=15,
-        alpha=0.7
-    )
-
-    # ✅ plot noise
-    ax.scatter(
-        jitter[noise],
-        df['Time_taken (min)'][noise],
-        c='red',
-        s=20,
-        label='Noise'
-    )
-
-    # 🔥 FIXED LABELING (clean + readable)
-    ax.set_xticks([1,2,3,4,5,6])
-    ax.set_xticklabels(
-        ['Sunny','Cloudy','Fog','Stormy','Sand','Windy'],
-        rotation=45,
-        ha='right'
-    )
-
-    ax.set_title("Weather vs Time")
-    ax.set_xlabel("Weather")
-    ax.set_ylabel("Time Taken (min)")
-
-    ax.legend()
+    
 
 def main(df):
     import pandas as pd
@@ -402,14 +282,12 @@ def main(df):
     print("Min euclidean distance:", df_cluster['distance_euclidean'].min())
 
     # plots
-    fig, axes = plt.subplots(3, 2, figsize=(10, 8))
+    fig, axes = plt.subplots(2, 2, figsize=(10, 8))
     axes = axes.flatten()
 
     graph1(df_cluster, axes[0])
-    graph2(df_cluster, axes[1])
-    graph3(df_cluster, axes[2])
-    graph4(df_cluster, axes[3])
-    graph5(df_cluster, axes[4])
-    graph6(df_cluster, axes[5])
+    graph3(df_cluster, axes[1])
+    graph4(df_cluster, axes[2])
+    graph5(df_cluster, axes[3])
     plt.tight_layout()
-    plt.show()
+    return fig

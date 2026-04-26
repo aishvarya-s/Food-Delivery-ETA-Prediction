@@ -1,7 +1,10 @@
 import pandas as pd
+import streamlit as st
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import classification_report, confusion_matrix
 
 
 # create target variable
@@ -56,11 +59,36 @@ def train_model(X_train, y_train):
 def evaluate_model(model, X_test, y_test):
     y_pred = model.predict(X_test)
 
-    print("Classification Report:")
-    print(classification_report(y_test, y_pred))
+    # Accuracy (top highlight)
+    acc = accuracy_score(y_test, y_pred)
+    st.metric("Accuracy", f"{acc*100:.2f}%")
 
-    print("Confusion Matrix:")
-    print(confusion_matrix(y_test, y_pred))
+    # Classification Report (Table)
+    report = classification_report(y_test, y_pred, output_dict=True)
+    report_df = pd.DataFrame(report).transpose()
+
+    st.subheader("📊 Classification Report")
+    st.dataframe(report_df.style.format("{:.2f}"))
+
+    # Confusion Matrix (Heatmap)
+    cm = confusion_matrix(y_test, y_pred)
+
+    fig, ax = plt.subplots()
+    sns.heatmap(
+        cm,
+        annot=True,
+        fmt='d',
+        cmap='Blues',
+        xticklabels=["High Delay", "On-Time", "Slight Delay"],
+        yticklabels=["High Delay", "On-Time", "Slight Delay"],
+        ax=ax
+    )
+
+    ax.set_xlabel("Predicted")
+    ax.set_ylabel("Actual")
+    ax.set_title("Confusion Matrix")
+
+    st.pyplot(fig)
 
 
 # pipeline function
