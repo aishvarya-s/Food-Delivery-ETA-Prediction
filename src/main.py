@@ -70,6 +70,7 @@ def main():
 
     df = feature_engineering(df)
     print("Feature engineering completed successfully.")
+    #print(df['distance'].describe())
 
     print("\nData after preprocessing:")
     print(f"Shape: {df.shape}")
