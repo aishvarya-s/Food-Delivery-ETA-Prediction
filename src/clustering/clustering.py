@@ -39,7 +39,7 @@ def graph1(df, ax):
     ax.set_xlim(0, df['distance_euclidean'].quantile(0.99))
 
     ax.set_title("Distance vs Time")
-    ax.set_xlabel("Euclidean Distance")
+    ax.set_xlabel(" Distance (m)")
     ax.set_ylabel("Time Taken (min)")
 
     ax.legend()
@@ -85,119 +85,69 @@ def graph3(df, ax):
         label='Noise'
     )
 
+    ax.set_xticks([0, 1, 2])
+    ax.set_xticklabels(['0', '1', '2'])
     ax.set_title("Deliveries vs Time")
     ax.set_xlabel("Number of Deliveries")
     ax.set_ylabel("Time Taken (min)")
 
     ax.legend()
-    
-def graph6(df, ax):
-    import numpy as np
-    from sklearn.preprocessing import StandardScaler
-    from sklearn.cluster import DBSCAN
 
-    df = df.copy()
-
-    # encode weather
-    weather_map = {
-        'Sunny': 1,
-        'Cloudy': 2,
-        'Fog': 3,
-        'Stormy': 4,
-        'Sandstorms': 5,
-        'Windy': 6
-    }
-
-    df['weather'] = df['Weather_conditions'].map(weather_map)
-
-    df = df.dropna(subset=['weather', 'Time_taken (min)'])
-
-    # prepare data
-    X = df[['weather', 'Time_taken (min)']]
-    X_scaled = StandardScaler().fit_transform(X)
-
-    labels = DBSCAN(eps=0.4, min_samples=8).fit_predict(X_scaled)
-
-    clusters = labels != -1
-    noise = labels == -1
-
-    # jitter
-    jitter = df['weather'] + np.random.uniform(-0.1, 0.1, len(df))
-
-    # clusters
-    ax.scatter(
-        jitter[clusters],
-        df['Time_taken (min)'][clusters],
-        c=labels[clusters],
-        cmap='viridis',
-        s=15
-    )
-
-    # noise
-    ax.scatter(
-        jitter[noise],
-        df['Time_taken (min)'][noise],
-        c='red',
-        s=20,
-        label='Noise'
-    )
-
-    ax.set_yticks(range(1, 7))
-    ax.set_yticklabels(['Sunny','Cloudy','Fog','Stormy','Sandstorms','Windy'])
-
-    ax.set_title("Weather vs Time")
-    ax.set_xlabel("Weather")
-    ax.set_ylabel("Time Taken (min)")
-
-    ax.legend()
-    
 def graph4(df, ax):
+    import numpy as np
     from sklearn.preprocessing import StandardScaler
     from sklearn.cluster import KMeans
 
     df = df.copy()
 
-    # remove missing values
-    df = df.dropna(subset=['distance_euclidean', 'multiple_deliveries'])
+    # remove missing
+    df = df.dropna(subset=['distance', 'multiple_deliveries'])
 
-    # prepare data
-    X = df[['distance_euclidean', 'multiple_deliveries']]
+    # 🔹 features
+    X = df[['distance', 'multiple_deliveries']]
+
+    # 🔹 scaling
     scaler = StandardScaler()
     X_scaled = scaler.fit_transform(X)
 
-    # KMeans clustering
-    kmeans = KMeans(n_clusters=3, random_state=42)
-    labels = kmeans.fit_predict(X_scaled)
+    # 🔹 KMeans (2 clusters like your original)
+    kmeans = KMeans(n_clusters=2, random_state=42)
+    df['cluster'] = kmeans.fit_predict(X_scaled)
 
-    # plot each cluster (NO jitter)
-    for i in range(3):
-        ax.scatter(
-            df['distance_euclidean'][labels == i],
-            df['multiple_deliveries'][labels == i],
-            label=f'Cluster {i}',
-            s=12,
-            alpha=0.8
-        )
+    # 🔹 jitter (IMPORTANT)
+    delivery_jitter = df['multiple_deliveries'] + np.random.uniform(-0.1, 0.1, len(df))
 
-    # plot centroids
+    # 🔹 scatter (single call, not loop)
+    scatter = ax.scatter(
+        df['distance'],
+        delivery_jitter,
+        c=df['cluster'],
+        cmap='viridis',
+        s=30,
+        alpha=0.7
+    )
+
+    # 🔹 centroids
     centroids = scaler.inverse_transform(kmeans.cluster_centers_)
     ax.scatter(
         centroids[:, 0],
         centroids[:, 1],
         c='red',
-        s=80,
+        s=100,
         marker='X',
         label='Centroids'
     )
 
-    # labels
-    ax.set_title("Distance vs Deliveries (KMeans)")
-    ax.set_xlabel("Euclidean Distance")
+    # 🔹 labels
+    ax.set_title("K-Means Clustering (Distance + Deliveries)")
+    ax.set_xlabel("Distance (m)")
     ax.set_ylabel("Number of Deliveries")
 
-    # clean axis
-    ax.set_xlim(0, df['distance_euclidean'].quantile(0.99))
+    # 🔹 clean y-axis
     ax.set_yticks([0, 1, 2, 3])
+
+    # 🔹 colorbar
+    ax.figure.colorbar(scatter, ax=ax, label='Cluster')
 
     ax.legend()
     
@@ -243,7 +193,6 @@ def graph5(df, ax):
 
     # ✅ colorbar (important)
     plt.colorbar(scatter, ax=ax, label='Cluster')
-    
 
 def main(df):
     import pandas as pd
@@ -282,7 +231,7 @@ def main(df):
     print("Min euclidean distance:", df_cluster['distance_euclidean'].min())
 
     # plots
-    fig, axes = plt.subplots(2, 2, figsize=(10, 8))
+    fig, axes = plt.subplots(2, 2, figsize=(12, 10))
     axes = axes.flatten()
 
     graph1(df_cluster, axes[0])
