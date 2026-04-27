@@ -5,7 +5,6 @@ from preprocessing.preprocess import (
 )
 
 from models.classification_model import run_classification
-from models.regression_model import run_regression
 from models.regression_model import run_regression, predict_single_eta
 from clustering.clustering import main as run_clustering
 
@@ -52,7 +51,6 @@ def get_user_input():
 
 
 def main():
-    path = "data/raw/Zomato Dataset.csv"
 
     # --- load and preprocess data ---
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -74,30 +72,23 @@ def main():
     print("Feature engineering completed successfully.")
     #print(df['distance'].describe())
 
-    print("Data after preprocessing:")
-    print(df.shape)
     print("\nData after preprocessing:")
     print(f"Shape: {df.shape}")
     print(df.head())
-    print(df.info())
-    print("Before Classification:")
 
     # --- classification ---
     print("\n--- Running Classification ---")
     run_classification(df)
-    print("Classification model trained and evaluated successfully.")
     print("Classification completed successfully.")
 
     # --- regression ---
     print("\n--- Running Regression ---")
     trained_models, results = run_regression(df)
-    print("Running clustering analysis...")
     print("Regression completed successfully.")
 
     # --- clustering ---
     print("\n--- Running Clustering ---")
     run_clustering(df)
-    print("Clustering completed.")
     print("Clustering completed successfully.")
 
     # --- dynamic ETA simulation ---
