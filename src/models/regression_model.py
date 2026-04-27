@@ -168,3 +168,38 @@ def run_regression(df):
 
 # On average, our model's prediction is off by ± 3.37 minutes from the actual delivery time based on
 # the MAE's value 
+
+def predict_single_eta(trained_models, sample_input):
+    import datetime
+
+    # auto-calculate is_peak from current time
+    current_hour = datetime.datetime.now().hour
+    peak_hours = [12, 13, 19, 20, 21]
+    sample_input['is_peak'] = 1 if current_hour in peak_hours else 0
+
+    # convert to dataframe
+    sample_df = pd.DataFrame([sample_input])
+
+    # one-hot encode (same as training)
+    sample_df = pd.get_dummies(sample_df, drop_first=True)
+
+    # directly use Random Forest — best model
+    model = trained_models.get('Random Forest', list(trained_models.values())[0])
+
+    # align columns with training data
+    train_cols = model.feature_names_in_
+    sample_df = sample_df.reindex(columns=train_cols, fill_value=0)
+
+    # predict
+    predicted_time = model.predict(sample_df)[0]
+
+    print(f"\n--- ETA Prediction ---")
+    print(f"Distance       : {sample_input['distance']} km")
+    print(f"Traffic        : {sample_input['Road_traffic_density']}")
+    print(f"Weather        : {sample_input['Weather_conditions']}")
+    print(f"Festival       : {sample_input['Festival']}")
+    print(f"Peak Hour      : {'Yes' if sample_input['is_peak'] else 'No'}")
+    print(f"Predicted ETA  : {predicted_time:.1f} minutes")
+    print(f"----------------------")
+
+    return round(predicted_time, 1)
