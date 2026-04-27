@@ -413,3 +413,4 @@ def main(df):
     graph6(df_cluster, axes[5])
     plt.tight_layout()
     plt.show()
+    plt.close('all')
