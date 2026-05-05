@@ -239,5 +239,4 @@ def main(df):
     graph4(df_cluster, axes[2])
     graph5(df_cluster, axes[3])
     plt.tight_layout()
-    plt.show()
-    plt.close('all')
+    return fig
